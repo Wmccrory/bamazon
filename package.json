@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/Wmccrory/bamazon/issues"
   },
-  "homepage": "https://github.com/Wmccrory/bamazon#readme"
+  "homepage": "https://github.com/Wmccrory/bamazon#readme",
+  "dependencies": {
+    "inquirer": "^5.1.0",
+    "mysql": "^2.15.0",
+    "tty-table": "^2.5.5"
+  }
 }
