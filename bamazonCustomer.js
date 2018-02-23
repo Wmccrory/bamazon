@@ -16,11 +16,11 @@ var header = [
 		width : 11
 	},
 	{
-			value : "Product Name",
-			headerColor : "cyan",
-			color : "white",
-			align : "center",
-			width: 100
+		value : "Product Name",
+		headerColor : "cyan",
+		color : "white",
+		align : "center",
+		width: 100
 	},
 	{
 		value : "Price",
@@ -34,7 +34,7 @@ var header = [
 		headerColor : "cyan",
 		color: "white",
 		align : "center",
-		width : 16
+		width : 20
 	},
 ]
 
@@ -54,7 +54,8 @@ connection.connect(function(err) {
 	if (err) throw err;
 	console.log("connected as id " + connection.threadId);
 	console.log("Welcome to BAMAZON.");
-	console.log("A Saudi Basic Industries Corporation Venture");
+	console.log("  ____________________________________________")
+	console.log("//A Saudi Basic Industries Corporation Venture\\\\");
 	displayItem()
 });
 
@@ -66,7 +67,7 @@ function itemSelect() {
 		[{
 			type: "input",
 			name: "itemName",
-			message: "Enter an item by name or ID",
+			message: "Enter an item by product name or ID: ",
 			validate: function validateitemName(name){
 			return name !== "";
 			}
@@ -80,7 +81,7 @@ function itemSelect() {
 			}
 		}]
 	).then(data => {
-		testFunction(data);
+		itemOrder(data);
 		displayItem()
 	})
 }
@@ -88,9 +89,12 @@ function itemSelect() {
 ///////////////////
 
 //app functions//
+
+//display item list//
 function displayItem() {
 	connection.query("SELECT * FROM products", function(err, res) {
 		var rows = [];
+		dbResults = res;
 		for (i = 0; i < res.length; i++) {
 			rows.push([res[i].itemID, res[i].productName, res[i].price, res[i].stockQuantity]);
 		}
@@ -108,15 +112,53 @@ function displayItem() {
 	});
 };
 
-//testing area//
-
-function testFunction(input) {
-	console.log(input)
+//order item
+function itemOrder(input) {
+	//if user input is item name	
 	if (isNaN(input.itemName) === true) {
-		console.log(input.itemName + " is not a number");
-		console.log(input.itemQuantity);
-	} else {
-		console.log(input.itemName + " is a number");
-		console.log(input.itemQuantity);
+		for (i = 0; i < dbResults.length; i++) {
+			if (input.itemName.toUpperCase() === dbResults[i].productName.toUpperCase()) {
+				var chosenItem = dbResults[i];
+				var itemMatch = true;
+			}
+		}
 	}
-}
+	//if user input is item ID
+	else if (isNaN(input.itemName) === false) {
+		for (i = 0; i < dbResults.length; i++) {
+			if (parseInt(input.itemName) === dbResults[i].itemID) {
+				var chosenItem = dbResults[i];
+				var itemMatch = true;
+			}
+		}
+	}	
+
+	if (!itemMatch) {
+		return console.log("No items match your input!");
+	} 
+
+	if (input.itemQuantity > chosenItem.stockQuantity) {
+		return console.log("You want more of that item than we have in stock!");
+	}
+
+	var newStockQuantity = (chosenItem.stockQuantity - input.itemQuantity);
+
+	connection.query(
+		"UPDATE products SET ? WHERE ?",
+		[
+			{
+				stockQuantity : newStockQuantity
+			},
+			{
+				itemID : chosenItem.itemID
+			}
+		],
+		function(error) {
+			if (error) throw err;
+			console.log("======================");
+			console.log("Order successfully placed");
+			console.log("Your order comes out to be " + (chosenItem.price * input.itemQuantity).toFixed(2) + " dollars. Enjoy!");
+			console.log("======================");
+		}
+	)
+} 
