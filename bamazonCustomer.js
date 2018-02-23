@@ -6,6 +6,8 @@ var mysql = require("mysql");
 var Table = require("tty-table");
 var chalk = require("chalk");
 
+///////////////////////
+
 //table creation//
 var header = [
 	{
@@ -52,8 +54,8 @@ var connection = mysql.createConnection({
 //app initialization//
 connection.connect(function(err) {
 	if (err) throw err;
+	console.log("Welcome to BAMAZON");
 	console.log("connected as id " + connection.threadId);
-	console.log("Welcome to BAMAZON.");
 	console.log("  ____________________________________________")
 	console.log("//A Saudi Basic Industries Corporation Venture\\\\");
 	displayItem()
