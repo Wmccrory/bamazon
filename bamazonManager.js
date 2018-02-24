@@ -61,7 +61,7 @@ connection.connect(function(err) {
 
 /////////////////////
 
-//inquirer prompts
+//opening prompt
 
 function appStart() {
 	inquirer.prompt(
@@ -161,7 +161,7 @@ function addInventory() {
 		[{
 			type : "input",
 			name : "itemName",
-			message : "Enter a product name or ID here smiley face",
+			message : "Enter a product name or ID here",
 			validate : function validateitemName(name){
 			return name !== "";
 			}
@@ -198,8 +198,6 @@ function addInventory() {
 				console.log("No items match your input!");
 				return appStart()
 			};
-
-			console.log(chosenItem);
 
 			var newStockQuantity = (parseInt(chosenItem.stockQuantity) + parseInt(input.itemQuantity));
 
@@ -266,5 +264,25 @@ function addNewProducts() {
 		]
 	).then(data => {
 		console.log(data);
+
+		connection.query(
+				"INSERT INTO products SET ?",
+				[
+					{
+						productName : data.name,
+						price : data.price,
+						stockQuantity : data.quantity,
+						departmentName : data.department
+					}
+				],
+				function(error) {
+					if (error) throw err;
+					console.log("======================");
+					console.log("You added " + data.name + " to the " + data.department + " department!");
+					console.log("======================");
+
+					appStart()
+				}
+			);
 	})
 }
